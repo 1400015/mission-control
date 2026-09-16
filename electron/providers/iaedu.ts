@@ -45,31 +45,36 @@ export const iaeduAdapter: ProviderAdapter = {
   },
 
   /**
-   * Parser tolerante: o iaedu pode enviar SSE, NDJSON ou texto simples.
-   * Estratégia:
-   *  - linhas "data: ..." → tenta JSON e extrai campos de texto comuns;
-   *  - linhas JSON soltas → idem;
-   *  - resto → emite como texto bruto (para o utilizador ver o stream real).
+   * Parser do stream NDJSON do iaedu (uma linha JSON por evento, sem prefixo
+   * "data:"). Eventos observados na API real:
+   *   {"type":"start",  "content":"Processing"}
+   *   {"type":"token",  "content":"texto delta"}   ← delta de resposta
+   *   {"type":"message","content":{...objeto...}}  ← mensagem final (ignorado;
+   *                                    os tokens já transmitiram o texto)
+   *   {"type":"done",   ...}
    */
   parseStreamChunk(_provider: ProviderConfig, raw: string): ProviderStreamEvent[] {
     const line = raw.trim();
     if (!line) return [];
     const payload = line.startsWith("data:") ? line.slice(5).trim() : line;
-    if (!payload || payload === "[DONE]") return payload === "[DONE]" ? [{ type: "done" }] : [];
+    if (!payload) return [];
 
-    // Tenta interpretar como JSON e extrair texto de campos conhecidos
     try {
       const json = JSON.parse(payload) as Record<string, unknown>;
-      const text =
-        pickString(json, ["content", "text", "token", "delta", "message", "response", "answer", "output"]) ??
-        pickNestedChoice(json);
-      if (text) return [{ type: "text", delta: text }];
-      // JSON sem texto reconhecível: ignora (pode ser metadado)
+      const type = typeof json.type === "string" ? json.type : "";
+
+      if (type === "done") return [{ type: "done" }];
+      if (type === "token") {
+        const text = json.content;
+        return typeof text === "string" && text.length
+          ? [{ type: "text", delta: text }]
+          : [];
+      }
+      // "start", "message" e outros metadados: ignorados (texto já veio nos tokens)
       return [];
     } catch {
-      // Texto simples → emite diretamente
-      if (payload.startsWith("{") || payload.startsWith("<")) return [];
-      return [{ type: "text", delta: payload }];
+      // Linha não-JSON: ignora (robustez contra comentários/ruído)
+      return [];
     }
   },
 
@@ -84,22 +89,3 @@ export const iaeduAdapter: ProviderAdapter = {
     ];
   },
 };
-
-/** Procura a primeira propriedade string existente num objeto (por ordem). */
-function pickString(obj: Record<string, unknown>, keys: string[]): string | undefined {
-  for (const k of keys) {
-    const v = obj[k];
-    if (typeof v === "string" && v.length) return v;
-  }
-  return undefined;
-}
-
-/** Cobre respostas tipo OpenAI aninhadas (choices[0].delta/message.content). */
-function pickNestedChoice(json: Record<string, unknown>): string | undefined {
-  const choices = json.choices as Record<string, unknown>[] | undefined;
-  const first = choices?.[0];
-  if (!first) return undefined;
-  const delta = (first.delta ?? first.message) as Record<string, unknown> | undefined;
-  const content = delta?.content ?? first.text;
-  return typeof content === "string" && content.length ? content : undefined;
-}
