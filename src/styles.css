@@ -1,0 +1,191 @@
+/* ============================================================================
+   styles.css — Tema escuro "Mission Control" (inspirado no Antigravity)
+   Variáveis no :root permitem ajustar a paleta num só lugar.
+   ========================================================================== */
+
+:root {
+  --bg: #0b0c10;
+  --bg-panel: #13151b;
+  --bg-card: #161920;
+  --border: #262a33;
+  --text: #e6e8ee;
+  --muted: #8b90a0;
+  --accent: #7aa2f7;
+  --accent-strong: #4f7ef7;
+  --ok: #7ee787;
+  --warn: #e3b341;
+  --danger: #f85149;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+button {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent-strong); border-color: transparent; }
+button.danger { border-color: #6e2226; color: #ff8182; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+input, select, textarea {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+textarea { resize: vertical; }
+
+/* ---- Layout geral ---------------------------------------------------------- */
+.app { display: flex; height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.brand { display: flex; gap: 10px; align-items: center; padding: 0 6px; }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-strong), #8957e5);
+  display: grid; place-items: center; font-weight: 700;
+}
+.brand-name { font-weight: 600; }
+.brand-sub { font-size: 11px; }
+nav { display: flex; flex-direction: column; gap: 2px; }
+.nav {
+  text-align: left; background: transparent; border: none; padding: 9px 10px;
+  border-radius: 8px; display: flex; align-items: center; gap: 8px;
+}
+.nav:hover { background: var(--bg-card); }
+.nav.active { background: var(--bg-card); border: 1px solid var(--border); }
+.nav.sub { font-size: 12.5px; padding-left: 18px; }
+
+.content { flex: 1; overflow-y: auto; }
+.pad { padding: 24px; }
+.muted { color: var(--muted); }
+.warn { color: var(--warn); font-size: 12.5px; }
+.ok { color: var(--ok); font-size: 12px; }
+.row { display: flex; gap: 8px; align-items: center; }
+
+/* ---- Manager ---------------------------------------------------------------- */
+.manager { padding: 28px 36px; max-width: 1100px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 16px 0; }
+.card {
+  text-align: left; padding: 14px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.card-top { display: flex; align-items: center; gap: 8px; }
+.card-foot { font-size: 12px; }
+.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.panel {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-top: 20px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+label { display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; color: var(--muted); }
+
+/* ---- Estados ------------------------------------------------------------------ */
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--muted); }
+.dot.running, .dot.planning { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.dot.waiting-approval { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+.dot.completed { background: var(--ok); }
+.dot.failed { background: var(--danger); }
+
+/* ---- Vista de agente ------------------------------------------------------------ */
+.agent { display: flex; flex-direction: column; height: 100vh; }
+.agent-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 28px; border-bottom: 1px solid var(--border);
+}
+.agent-head h1 { margin: 0; font-size: 18px; }
+.agent-head p { margin: 2px 0 0; font-size: 12px; }
+.error-banner { background: #2d1215; color: #ff9496; padding: 8px 28px; font-size: 13px; }
+.agent-body { display: flex; flex: 1; min-height: 0; }
+
+.chat-col { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); min-width: 0; }
+.tabs { display: flex; gap: 4px; padding: 10px 16px 0; }
+.tab { border: none; background: transparent; color: var(--muted); border-bottom: 2px solid transparent; border-radius: 0; }
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+.chat { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 92%; display: flex; flex-direction: column; gap: 4px; }
+.msg-role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.msg.user { align-self: flex-end; background: #1c2a4a; padding: 10px 12px; border-radius: 10px; }
+.msg.assistant { background: var(--bg-card); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); }
+.msg.tool { align-self: stretch; max-width: 100%; }
+.msg-body { white-space: pre-wrap; word-break: break-word; }
+.tool-out {
+  background: #101216; border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 12px; max-height: 220px; overflow: auto; margin: 0;
+  white-space: pre-wrap; word-break: break-word;
+}
+.toolcall {
+  font-family: Consolas, monospace; font-size: 12px; color: var(--accent);
+  background: #10121c; border-radius: 6px; padding: 4px 8px; width: fit-content;
+}
+.reasoning summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+.reasoning pre { font-size: 12px; color: var(--muted); max-height: 160px; overflow: auto; }
+
+.approval {
+  border: 1px solid var(--warn); border-radius: 10px; padding: 12px;
+  background: #241d10; display: flex; flex-direction: column; gap: 8px;
+}
+.approval pre { margin: 0; font-size: 13px; white-space: pre-wrap; }
+
+.chat-input { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
+
+/* ---- Artifacts -------------------------------------------------------------------- */
+.artifacts { width: 380px; min-width: 300px; overflow-y: auto; padding: 16px; background: var(--bg-panel); }
+.artifacts h3 { margin: 0 0 10px; font-size: 14px; }
+.artifact {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 8px; padding: 8px 10px;
+}
+.artifact summary { cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.artifact pre {
+  margin: 10px 0 0; font-size: 12px; max-height: 320px; overflow: auto;
+  white-space: pre-wrap; word-break: break-word; color: var(--muted);
+}
+.tag {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  border-radius: 5px; padding: 2px 6px; background: var(--bg-panel); border: 1px solid var(--border);
+}
+.tag.plan { color: var(--accent); }
+.tag.diff { color: var(--ok); }
+.tag.report { color: #d2a8ff; }
+
+/* ---- Settings ------------------------------------------------------------------------ */
+.settings { padding: 28px 36px; max-width: 980px; display: flex; flex-direction: column; gap: 14px; }
+.provider-list { display: flex; flex-direction: column; gap: 10px; }
+.provider-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; gap: 12px;
+}
+.preset-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }

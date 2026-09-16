@@ -1,0 +1,37 @@
+{
+  "name": "mission-control",
+  "productName": "Mission Control",
+  "version": "0.1.0",
+  "description": "Orquestração de agentes de IA em paralelo com múltiplos provedores de LLM (Google AI Studio, OpenRouter, Groq, Venice, Alibaba e endpoints customizados).",
+  "main": "dist-electron/electron/main.js",
+  "private": true,
+  "author": "1400015",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:electron": "cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron dist-electron/electron/main.js",
+    "build:renderer": "vite build",
+    "build:main": "tsc -p tsconfig.node.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "start": "npm run build:main && npm run build:renderer && electron dist-electron/electron/main.js",
+    "dist": "npm run build:main && npm run build:renderer && electron-builder"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true,
+    "esbuild@0.25.12": true
+  }
+}

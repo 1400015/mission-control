@@ -1,0 +1,22 @@
+# Dependências
+node_modules/
+
+# Builds
+dist/
+dist-electron/
+release/
+
+# Dados locais do utilizador (configurações, bases de dados, chaves)
+*.sqlite
+*.sqlite-journal
+mission-control-data/
+
+# Ambientes e IDEs
+.env
+.env.*
+.vscode/
+.idea/
+
+# Sistema
+.DS_Store
+Thumbs.db
