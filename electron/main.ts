@@ -15,11 +15,6 @@ import * as path from "node:path";
 import { registerIpc } from "./ipc";
 import { closeBrowser } from "./agents/tools/browser";
 
-// Evita que a app arranque durante instalações/atualizações no Windows
-if (require("electron-squirrel-startup")) {
-  app.quit();
-}
-
 function createWindow(): void {
   const win = new BrowserWindow({
     width: 1400,
