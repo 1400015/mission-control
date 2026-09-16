@@ -126,7 +126,10 @@ export function AgentView({ runId, runs }: { runId: string; runs: AgentRun[] }) 
               <summary>
                 <span className={`tag ${a.type}`}>{a.type}</span> {a.title}
               </summary>
-              <pre>{a.content}</pre>
+              {/* Screenshots são data-URIs e exibem-se como imagem */}
+              {a.type === "screenshot" && a.content.startsWith("data:image/")
+                ? <img className="shot" src={a.content} alt={a.title} />
+                : <pre>{a.content}</pre>}
             </details>
           ))}
         </div>

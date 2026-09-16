@@ -361,7 +361,15 @@ async function executeTool(
   emit({ kind: "tool-start", runId: run.id, toolCallId: call.id, tool: call.name, args, ts: now() });
 
   try {
-    const result = await entry.run(run.workspacePath, args);
+    let result = await entry.run(run.workspacePath, args);
+
+    // Screenshots do navegador → Artifact visual (data-URI exibível na UI)
+    if (result.startsWith("DATA_URI:data:image/")) {
+      const dataUri = result.slice("DATA_URI:".length);
+      pushArtifact(run, "screenshot", `Screenshot — ${new Date().toLocaleTimeString()}`, dataUri);
+      result = "Screenshot capturado e guardado como artifact para o utilizador.";
+    }
+
     emit({ kind: "tool-result", runId: run.id, toolCallId: call.id, result: result.slice(0, 2000), ts: now() });
 
     // Produz artifact de diff para ferramentas de escrita

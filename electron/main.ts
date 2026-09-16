@@ -13,6 +13,7 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "node:path";
 import { registerIpc } from "./ipc";
+import { closeBrowser } from "./agents/tools/browser";
 
 // Evita que a app arranque durante instalações/atualizações no Windows
 if (require("electron-squirrel-startup")) {
@@ -58,4 +59,9 @@ app.whenReady().then(() => {
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
+});
+
+// Encerra o navegador do agente quando a app termina
+app.on("before-quit", () => {
+  void closeBrowser();
 });
