@@ -29,12 +29,21 @@ export async function streamChat(
 
   const adapter = adapterFor(provider);
   const url = adapter.chatEndpoint(provider, request.modelId);
-  const body = adapter.buildBody(provider, request, { stream: true });
+
+  // Corpo: JSON (formatos OpenAI/Google) ou FormData (formatos como iaedu)
+  let body: string | FormData;
+  if (adapter.usesFormData) {
+    const fd = new FormData();
+    adapter.buildFormData?.(provider, request, fd);
+    body = fd;
+  } else {
+    body = JSON.stringify(adapter.buildBody?.(provider, request, { stream: true }) ?? {});
+  }
 
   const res = await fetch(url, {
     method: "POST",
     headers: adapter.buildHeaders(provider, apiKey),
-    body: JSON.stringify(body),
+    body,
     signal,
   });
 

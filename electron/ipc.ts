@@ -34,6 +34,8 @@ function saveProviderInternal(input: Partial<ProviderConfig> & { name: string })
     reasoningParam: input.reasoningParam ?? existing?.reasoningParam ?? preset?.reasoningParam ?? "none",
     customReasoningParam: input.customReasoningParam ?? existing?.customReasoningParam,
     customReasoningValues: input.customReasoningValues ?? existing?.customReasoningValues,
+    iaeduAgentId: input.iaeduAgentId ?? existing?.iaeduAgentId,
+    iaeduChannelId: input.iaeduChannelId ?? existing?.iaeduChannelId,
     models: input.models ?? existing?.models ?? preset?.suggestedModels ?? [],
     createdAt: existing?.createdAt ?? Date.now(),
   };
@@ -102,8 +104,7 @@ export function registerIpc(): void {
     if (!provider) throw new Error("Provedor não encontrado.");
     setSecret(provider.apiKeyRef, key);
   });
-  ipcMain.handle("providers:test", (_e, id: string) => testProvider(id));
-  ipcMain.handle("providers:refresh-models", (_e, id: string) => refreshModels(id));
+  ipcMain.handle("providers:test", (_e, id: string) => testProvider(id));  ipcMain.handle("providers:refresh-models", (_e, id: string) => refreshModels(id));
 
   // ---- Agentes --------------------------------------------------------------
   ipcMain.handle("runs:list", () => listRuns());

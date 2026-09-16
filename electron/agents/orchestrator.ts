@@ -212,6 +212,9 @@ async function agentLoop(run: AgentRun): Promise<void> {
             { id: "sys", role: "system", content: run.systemPrompt ?? DEFAULT_SYSTEM },
             ...run.messages,
           ],
+          // Chave estável de sessão para APIs que gerem a própria memória
+          // (iaedu usa isto como thread_id)
+          sessionKey: run.id,
         },
         (ev) => {
           switch (ev.type) {

@@ -16,7 +16,7 @@ import { api } from "../lib/api";
 /** Presets mostrados na UI (espelham electron/providers/registry.ts). */
 const PRESETS: {
   key: string; name: string;
-  kind: "google" | "openai-compatible";
+  kind: "google" | "openai-compatible" | "iaedu";
   baseUrl: string; reasoningParam: string; hint: string;
 }[] = [
   { key: "google-ai-studio", name: "Google AI Studio", kind: "google", baseUrl: "https://generativelanguage.googleapis.com/v1beta", reasoningParam: "google-thinkingBudget", hint: "Chave em aistudio.google.com/apikey" },
@@ -24,6 +24,7 @@ const PRESETS: {
   { key: "groq", name: "Groq", kind: "openai-compatible", baseUrl: "https://api.groq.com/openai/v1", reasoningParam: "reasoning_effort", hint: "Chave em console.groq.com/keys" },
   { key: "venice", name: "Venice", kind: "openai-compatible", baseUrl: "https://api.venice.ai/api/v1", reasoningParam: "reasoning_effort", hint: "Chave em venice.ai/settings/api" },
   { key: "alibaba", name: "Alibaba (DashScope)", kind: "openai-compatible", baseUrl: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", reasoningParam: "alibaba-enable_thinking", hint: "Chave no console DashScope" },
+  { key: "iaedu", name: "iaedu (chatbot)", kind: "iaedu", baseUrl: "https://api.iaedu.pt", reasoningParam: "none", hint: "Agente + ID do canal + chave (painel 'Uso da API do Chatbot')" },
   { key: "custom", name: "Outro (endpoint personalizado)", kind: "openai-compatible", baseUrl: "", reasoningParam: "custom", hint: "Indica endpoint + chave" },
 ];
 
@@ -32,11 +33,13 @@ export function SettingsView() {
   const [editing, setEditing] = useState<null | {
     id?: string;
     name: string;
-    kind: "google" | "openai-compatible";
+    kind: "google" | "openai-compatible" | "iaedu";
     baseUrl: string;
     reasoningParam: string;
     customReasoningParam?: string;
     apiKey?: string;
+    iaeduAgentId?: string;
+    iaeduChannelId?: string;
     models: ModelInfo[];
   }>(null);
   const [status, setStatus] = useState<string>("");
@@ -65,10 +68,16 @@ export function SettingsView() {
         baseUrl: editing.baseUrl,
         reasoningParam: editing.reasoningParam as ProviderView["reasoningParam"],
         customReasoningParam: editing.customReasoningParam,
+        iaeduAgentId: editing.iaeduAgentId,
+        iaeduChannelId: editing.iaeduChannelId,
         models: editing.models,
       });
       if (editing.apiKey) {
         await api.setProviderKey(saved.id, editing.apiKey);
+      }
+      // Para o iaedu, o "modelo" é o próprio agente — sincroniza
+      if (editing.kind === "iaedu" && editing.iaeduAgentId) {
+        await api.refreshModels(saved.id);
       }
       setEditing(null);
       setStatus("Guardado.");
@@ -98,7 +107,7 @@ export function SettingsView() {
               <div className="muted">{p.models.length} modelo(s)</div>
             </div>
             <div className="row">
-              <button onClick={() => setEditing({ id: p.id, name: p.name, kind: p.kind, baseUrl: p.baseUrl, reasoningParam: p.reasoningParam, models: p.models })}>Editar</button>
+              <button onClick={() => setEditing({ id: p.id, name: p.name, kind: p.kind, baseUrl: p.baseUrl, reasoningParam: p.reasoningParam, models: p.models, iaeduAgentId: p.iaeduAgentId, iaeduChannelId: p.iaeduChannelId })}>Editar</button>
               <button onClick={async () => {
                 const key = prompt("Chave de API para " + p.name);
                 if (key) { await api.setProviderKey(p.id, key); reload(); }
@@ -141,9 +150,28 @@ export function SettingsView() {
               <select value={editing.kind} onChange={(e) => setEditing({ ...editing, kind: e.target.value as any })}>
                 <option value="openai-compatible">OpenAI-compatible (chat/completions)</option>
                 <option value="google">Google GenAI</option>
+                <option value="iaedu">iaedu (chatbot, multipart)</option>
               </select>
             </label>
           </div>
+          {editing.kind === "iaedu" && (
+            <div className="grid2">
+              <label>ID do agente iaedu (do endpoint …/agent/ID/stream)
+                <input
+                  value={editing.iaeduAgentId ?? ""}
+                  onChange={(e) => setEditing({ ...editing, iaeduAgentId: e.target.value })}
+                  placeholder="ex.: cmamvd3n40000c801qeacoad2"
+                />
+              </label>
+              <label>ID do Canal
+                <input
+                  value={editing.iaeduChannelId ?? ""}
+                  onChange={(e) => setEditing({ ...editing, iaeduChannelId: e.target.value })}
+                  placeholder="ex.: cmskzfqju01isjc016x3ep5ax"
+                />
+              </label>
+            </div>
+          )}
           <label>Endpoint base
             <input
               value={editing.baseUrl}

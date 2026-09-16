@@ -12,17 +12,20 @@
 import type { ModelInfo, ProviderConfig } from "../../shared/types";
 import { googleAdapter } from "./google";
 import { openAICompatibleAdapter } from "./openaiCompatible";
+import { iaeduAdapter } from "./iaedu";
 import type { ProviderAdapter } from "./types";
 
 /** Escolhe o adapter consoante o formato de API do provedor. */
 export function adapterFor(provider: ProviderConfig): ProviderAdapter {
-  return provider.kind === "google" ? googleAdapter : openAICompatibleAdapter;
+  if (provider.kind === "google") return googleAdapter;
+  if (provider.kind === "iaedu") return iaeduAdapter;
+  return openAICompatibleAdapter;
 }
 
 export interface ProviderPreset {
   key: string;           // identificador do preset na UI
   name: string;
-  kind: "google" | "openai-compatible";
+  kind: "google" | "openai-compatible" | "iaedu";
   baseUrl: string;
   reasoningParam: ProviderConfig["reasoningParam"];
   extraHeaders?: Record<string, string>;
@@ -104,5 +107,15 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     reasoningParam: "custom",
     suggestedModels: [],
     hint: "Indique o endpoint base (ex.: https://meu-servidor/v1) e a chave de API",
+  },
+  // Chatbots iaedu (multipart/form-data, autenticação x-api-key)
+  {
+    key: "iaedu",
+    name: "iaedu (chatbot)",
+    kind: "iaedu",
+    baseUrl: "https://api.iaedu.pt",
+    reasoningParam: "none",
+    suggestedModels: [],
+    hint: "Endpoint do agente + ID do canal + chave (painel 'Uso da API do Chatbot')",
   },
 ];

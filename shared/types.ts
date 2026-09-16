@@ -41,7 +41,7 @@ export type ReasoningParam =
 // ---------------------------------------------------------------------------
 
 /** Formato de API que o provedor fala. */
-export type ProviderKind = "google" | "openai-compatible";
+export type ProviderKind = "google" | "openai-compatible" | "iaedu";
 
 /** Descrição de um modelo oferecido por um provedor. */
 export interface ModelInfo {
@@ -75,6 +75,11 @@ export interface ProviderConfig {
   /** Mapeamento custom: nível → valor a enviar (ex.: high → "ultra"). */
   customReasoningValues?: Partial<Record<ReasoningLevel, string>>;
   models: ModelInfo[];
+  // --- Campos específicos do formato "iaedu" (chatbot API) ---
+  /** ID do agente iaedu (parte do URL: /agent/{id}/stream). */
+  iaeduAgentId?: string;
+  /** ID do canal iaedu (campo form channel_id). */
+  iaeduChannelId?: string;
   createdAt: number;
 }
 

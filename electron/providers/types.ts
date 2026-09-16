@@ -24,6 +24,11 @@ export interface ChatRequest {
   reasoning: ReasoningLevel;
   /** Ferramentas disponíveis para o modelo chamar (agente com ferramentas). */
   tools?: ToolDefinition[];
+  /**
+   * Chave estável de sessão (ex.: id do run) — usada por APIs que gerem a
+   * própria memória de conversa via thread/sessão (ex.: iaedu thread_id).
+   */
+  sessionKey?: string;
 }
 
 export interface ProviderAdapter {
@@ -34,10 +39,25 @@ export interface ProviderAdapter {
   chatEndpoint(provider: ProviderConfig, modelId: string): string;
 
   /**
+   * Quando true, o pedido usa multipart/form-data em vez de JSON.
+   * Nesse caso o adapter implementa buildFormData() e o chatService NÃO
+   * define Content-Type (o fetch gera o boundary automaticamente).
+   */
+  usesFormData?: boolean;
+
+  /** Preenche o FormData do pedido (só chamado se usesFormData). */
+  buildFormData?(
+    provider: ProviderConfig,
+    request: ChatRequest,
+    formData: FormData
+  ): void;
+
+  /**
    * Corpo do pedido já no formato da API. O adapter decide onde encaixar o
    * nível de raciocínio (thinkingBudget, reasoning_effort, ...).
+   * (Não usado quando usesFormData === true.)
    */
-  buildBody(
+  buildBody?(
     provider: ProviderConfig,
     request: ChatRequest,
     options: { stream: boolean }
